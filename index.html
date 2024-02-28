@@ -1,0 +1,266 @@
+<html>
+
+<head>
+    <meta name="viewport" content="width=device-width, user-scalable=no">
+    <!-- <meta http-equiv="refresh" content="5" charset="UTF-8"> -->
+    <title>Trafico Kaspersky</title>
+
+    <style>
+        body {
+            font-family: Arial, Helvetica, sans-serif;
+            background-color: rgb(20,21, 38);
+        }
+        .widget{
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+        h1 {
+            color: white;
+            text-align: center;
+            margin: 50px;
+            font-size: 18px;
+        }
+        .barraTemp{
+            height: 200px;
+            width: 200px;
+            margin: auto;
+            border-radius: 50%;
+            overflow: hidden;
+        }
+        .cont{
+            height: 100px;
+            width: 200px;
+        }
+        .circulo_centro {
+            width: 150px;
+            height: 150px;
+            background-color: rgb(20,21, 38);
+            border-radius: 50%;
+            margin: auto;
+            position: relative;
+            margin: -175px auto 50px;
+        }
+        .rectangulo{
+            width: 200px;
+            height: 100px;
+            background-color: rgb(20,21, 38);
+            position: relative;
+            margin: -125px auto 50px;
+        }
+        .s{
+            text-align: center;
+            color: white;
+            font-size: larger;
+        }
+        .d-f-r-allc{
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            justify-content: center;
+        }                
+        .circle{
+            border-radius: 5%;
+            border: solid 3px rgb(255, 255, 255);
+        }
+    </style>
+</head>
+<body>
+    <h1>Monitoreo Finca Pombriego</h1>
+    <div class="d-f-r-allc">
+        <div id="estado" class="s">            
+        </div>
+        <span class="s" hidden="false"></span>
+    </div>
+    <p id="topico" class="s"></p>
+    <div>
+        
+        <!-- <div>
+            <h1>Humedad en la tierra</h1>
+            
+            <div class="barraTemp" id="humedadTierra" style="transform: rotate(0deg);">
+                <div class="cont" style="background-color: rgb(143, 136, 136);"></div>
+                <div class="cont" style="background-color: rgb(57, 255, 26);"></div>   
+                
+            </div>
+            <div class="circulo_centro"></div>
+            <div class="rectangulo"></div>
+            <h1 id="valueHumedadTierraC1" style="font-size: 22px; position: relative; margin: -125px auto 50px;">-- °C</h1>
+        </div>
+    
+
+        <hr> -->
+        <div class="widget circle">
+            <h1 >Temperatura Ambiente</h1>
+            <img class="center" src="./assets/hot.png" alt="" width="60" >
+            <h1 id="temperaturaAmbienteNum" style="font-size: 22px">
+                0 °C                                                 
+            </h1>
+            
+        </div>
+        
+        <!-- <div>
+            <h1 >Humedad Ambiente</h1id>           
+            <h1 id="humedadAmbienteNum" style="font-size: 22px">-- %</h1>
+        </div> -->
+
+    </div>
+
+
+</body>
+<script src="https://unpkg.com/mqtt@5.3.0/dist/mqtt.min.js"></script>
+<script>
+    let estado = document.getElementById('estado')
+    let topico = document.getElementById('topico')
+    let humedadTierra = document.getElementById('humedadTierra')
+    let valueHumedadTierraC1 = document.getElementById('valueHumedadTierraC1')
+    let temperaturaAmbienteDeg = document.getElementById('temperaturaAmbienteDeg')
+    let temperaturaAmbienteNum = document.getElementById('temperaturaAmbienteNum')
+    let humedadAmbienteDeg = document.getElementById("humedadAmbienteDeg");
+    let humedadAmbienteNum = document.getElementById("humedadAmbienteNum");
+
+    BROKER_HOST = "18.191.211.221"
+    BROKER_PATH = "8083"
+    BROKER_TOPIC = "mqtt"
+    const options = {
+        connectTimeout: 4000,
+        // AUTENTICATION
+        cleinteId: "emqx",
+        // username: "emqx",
+        // password: "emqx",
+        keepalive: 60,
+        clean:true
+    }
+    const WebSocket_URL = `ws://${BROKER_HOST}:${BROKER_PATH}/${BROKER_TOPIC}`
+    // const WebSocket_URL = "ws://192.168.0.6:8083/mqtt"
+    const cliente = mqtt.connect(WebSocket_URL, options)
+    cliente.on('connect', ()=>{
+        console.log("Conectado exitosamente!")
+        // estado.value = "";
+
+        // estado.innerText = "";
+        estado.innerHTML = `<img src="./assets/wifi.png" width="50"><p>En linea </p> `;
+        
+        // cliente.publish("testtopic2", "topico llegado correctamente", {
+        //     "qos":0,
+        //     "retain":false // recuerda que lso mensajes retenidos seran guardados enmemoria hasta que alguiens e subscriba, es como un historial
+        // })
+
+
+        cliente.subscribe("humedadT", (err)=>{
+            if(!err){
+                // console.log(err)
+                // alert("Subscripcion exitosa");
+                topico.innerHTML = "";
+                topico.innerHTML = "Subscrito al topico humeadapombriegoTC1";
+
+                console.log("SUBSCRIPCCION EXITOSA-->")
+                
+            }else{
+                console.log("Erro de conexion con el topico")
+
+            }
+        })
+        cliente.subscribe("kaspersky", (err)=>{
+            if(!err){
+                // console.log(err)
+                // alert("Subscripcion exitosa");
+                topico.innerHTML = "";
+                topico.innerHTML = "Subscrito al topico temperatura";
+
+                console.log("SUBSCRIPCCION EXITOSA-->")
+                
+            }else{
+                console.log("Erro de conexion con el topico temperatura")
+
+            }
+        })
+        cliente.subscribe("humedadA", (err)=>{
+            if(!err){
+                // console.log(err)
+                // alert("Subscripcion exitosa");
+                topico.innerHTML = "";
+                topico.innerHTML = "Subscrito al topico temperatura";
+
+                console.log("SUBSCRIPCCION EXITOSA-->")
+                
+            }else{
+                console.log("Erro de conexion con el topico temperatura")
+
+            }
+        })
+    })
+
+    cliente.on("message", (topic, message)=>{
+        message = message.toString();
+        console.log(`EL mensaje de '${topic}' es '${message}'`);
+        let calor = 0;
+        if(topic == "humedadT"){
+            switch (message.split('.')[0]){
+                case '10':
+                    calor = 5;
+                    break;
+                case '9':
+                    calor = 20;
+                    break;
+                case '8':
+                    calor = 40;
+                    break;
+                case '7':
+                    calor = 60;
+                    break;
+                case '6':
+                    calor = 80;
+                    break;
+                case '5':
+                    calor = 100;
+                    break;
+                case '4':
+                    calor = 120;
+                    break;
+                case '3':
+                    calor = 140;
+                    break;
+                case '2':
+                    calor = 160;
+                    break;
+                case '1':
+                    calor = 180;
+                    break;
+
+
+            }
+            humedadTierra.style = `transform: rotate(${calor}deg)`;
+            // console.log(typeof message)
+            valueHumedadTierraC1.innerText = "--";
+            let porcentajehumedad = (100*calor)/180;
+            valueHumedadTierraC1.innerText = Math.round(porcentajehumedad)+"%";
+
+        }
+        // alert(message)
+        if(topic == "kaspersky"){
+            // temperaturaAmbienteDeg.style = `transform: rotate(${})`
+            temperaturaAmbienteNum.innerText = `${message} °C`
+        }
+        if(topic == "humedadA"){
+            // temperaturaAmbienteDeg.style = `transform: rotate(${})`
+            console.log("humedadA"+message)
+            humedadAmbienteNum.innerText = `${message} %`
+        }
+    })
+
+    cliente.on('reconnect', (error)=>{
+        console.log("Reconmectando", error)
+        estado.innerText = "";
+        estado.innerText = "Reconectando...";
+    })
+    cliente.on('error', (error)=>{
+        console.log("Hubo un error", error)
+        estado.innerHTML ="";
+        estado.innerHTML = `<img src="./lessConnection.png" width="50"><p> Disconect </p> `;
+    })
+</script>
+
+
+</html>
